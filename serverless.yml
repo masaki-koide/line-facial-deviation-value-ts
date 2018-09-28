@@ -18,8 +18,8 @@ custom:
   defaultProfile: sls
 
 functions:
-  hello:
-    handler: handler.hello
+  webhook:
+    handler: handler.webhook
     timeout: 10
     events:
       - http:
