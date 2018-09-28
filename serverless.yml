@@ -10,12 +10,17 @@ provider:
   runtime: nodejs8.10
   region: ap-northeast-1
   profile: sls
+  stage: ${opt:stage, self:custom.defaultStage}
+  profile: ${opt:profile, self:custom.defaultProfile}
+  environment: ${file(./conf/env.yml)}
+custom:
+  defaultStage: dev
+  defaultProfile: sls
 
 functions:
   hello:
     handler: handler.hello
     timeout: 10
-    environment: ${file(./conf/env.yml)}
     events:
       - http:
           method: post
