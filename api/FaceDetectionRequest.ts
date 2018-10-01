@@ -1,7 +1,7 @@
 import { OptionsWithUri, RequestPromiseOptions } from 'request-promise-native'
 import APIRequest from './APIRequest'
 
-export default class FaceDetectionRequest extends APIRequest {
+export default class FaceDetectionRequest extends APIRequest<any> {
   protected baseOptions: RequestPromiseOptions = {
     method: 'POST',
     form: {
@@ -33,7 +33,7 @@ export default class FaceDetectionRequest extends APIRequest {
 
   protected processResponse(res: any): any {
     if (res.error_message) {
-      return Promise.reject(res.error_message)
+      return Promise.reject(new Error(res.error_message))
     }
     return res.faces
   }

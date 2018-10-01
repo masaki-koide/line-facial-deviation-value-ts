@@ -1,9 +1,9 @@
 import * as request from 'request-promise-native'
 
-export default abstract class APIRequest {
+export default abstract class APIRequest<P> {
   protected abstract baseOptions: request.RequestPromiseOptions
 
-  public request(): Promise<any> {
+  public request(): Promise<P | never> {
     const resultOptions = this.prepareOptions()
     return request(resultOptions)
       .then(res => {
@@ -16,5 +16,5 @@ export default abstract class APIRequest {
   }
 
   protected abstract prepareOptions(): request.OptionsWithUri
-  protected abstract processResponse(res: any): any
+  protected abstract processResponse(res: any): P
 }

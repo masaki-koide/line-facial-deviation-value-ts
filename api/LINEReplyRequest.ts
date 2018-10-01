@@ -2,7 +2,7 @@ import { OptionsWithUri, RequestPromiseOptions } from 'request-promise-native'
 import { IMessage } from '../handler'
 import APIRequest from './APIRequest'
 
-export default class LINEReplyRequest extends APIRequest {
+export default class LINEReplyRequest extends APIRequest<any> {
   protected baseOptions: RequestPromiseOptions = {
     method: 'POST',
     auth: {
