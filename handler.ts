@@ -1,12 +1,8 @@
 import { APIGatewayEvent, Callback, Context, Handler } from 'aws-lambda'
-import FaceDetectRequest from './api/FaceDetectRequest'
+import FaceDetectionRequest from './api/FaceDetectionRequest'
 import LINEMessageContentRequest from './api/LINEMessageContentRequest'
 import LINEReplyRequest from './api/LINEReplyRequest'
 import { isValidSignature } from './helper'
-
-const faceDetectRequest = new FaceDetectRequest()
-const lineMessageContentRequest = new LINEMessageContentRequest()
-const lineReplyRequest = new LINEReplyRequest()
 
 export interface IMessage {
   type: string
@@ -35,13 +31,11 @@ function reply(events: any[], callback: Callback) {
       let messages
       try {
         // 送信された画像をbase64形式で取得
-        const content = await lineMessageContentRequest.request({
-          messageId: event.message.id
-        })
+        const content = await new LINEMessageContentRequest(
+          event.message.id
+        ).request()
         // 画像から顔を検出する
-        const faces = await faceDetectRequest.request({
-          image_base64: content
-        })
+        const faces = await new FaceDetectionRequest(content).request()
 
         // 画像から顔を検出できなかった場合
         if (faces.length === 0) {
@@ -61,10 +55,7 @@ function reply(events: any[], callback: Callback) {
           'エラーが発生しました。しばらく待ってもう一度やり直してください。'
         )
       } finally {
-        await lineReplyRequest.request({
-          replyToken: event.replyToken,
-          messages
-        })
+        await new LINEReplyRequest(event.replyToken, messages).request()
       }
       // フォローもしくはフォロー解除された場合
     } else if (event.type === 'follow' || event.type === 'unfollow') {
@@ -86,10 +77,7 @@ function reply(events: any[], callback: Callback) {
       // // その他のイベントはエラーメッセージで返す
     } else {
       const messages = createErrorMessage('診断したい写真を送ってね！')
-      await lineReplyRequest.request({
-        replyToken: event.replyToken,
-        messages
-      })
+      await new LINEReplyRequest(event.replyToken, messages).request()
     }
   })
 }

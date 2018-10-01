@@ -1,13 +1,8 @@
 import * as request from 'request-promise-native'
 import APIRequest from './APIRequest'
 
-// FIXME:requestの引数は考えたい
-interface IImageData {
-  image_base64: string
-}
-
-export default class FacePPRequest extends APIRequest<IImageData> {
-  public baseOptions: request.RequestPromiseOptions = {
+export default class FaceDetectionRequest extends APIRequest {
+  protected baseOptions: request.RequestPromiseOptions = {
     method: 'POST',
     form: {
       api_key: process.env.faceApiKey,
@@ -17,19 +12,26 @@ export default class FacePPRequest extends APIRequest<IImageData> {
     json: true
   }
 
-  public prepareOptions(image: IImageData): request.OptionsWithUri {
+  private imageBase64: string
+
+  constructor(imageBase64: string) {
+    super()
+    this.imageBase64 = imageBase64
+  }
+
+  protected prepareOptions(): request.OptionsWithUri {
     return {
       ...this.baseOptions,
       uri: 'https://api-us.faceplusplus.com/facepp/v3/detect',
       form: {
         // FIXME:キャストはあまりやりたくないのでもっとイケてる方法
         ...(this.baseOptions.form as object),
-        image_base64: image.image_base64
+        image_base64: this.imageBase64
       }
     }
   }
 
-  public processResponse(res: any): any {
+  protected processResponse(res: any): any {
     if (res.error_message) {
       return Promise.reject(res.error_message)
     }

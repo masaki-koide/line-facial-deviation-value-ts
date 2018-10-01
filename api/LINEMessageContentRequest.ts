@@ -1,15 +1,8 @@
 import * as request from 'request-promise-native'
 import APIRequest from './APIRequest'
 
-// FIXME:requestの引数は考えたい
-export interface IMessageData {
-  messageId: string
-}
-
-export default class LINEMessageContentRequest extends APIRequest<
-  IMessageData
-> {
-  public baseOptions: request.RequestPromiseOptions = {
+export default class LINEMessageContentRequest extends APIRequest {
+  protected baseOptions: request.RequestPromiseOptions = {
     auth: {
       bearer: process.env.lineBearer
     },
@@ -17,14 +10,21 @@ export default class LINEMessageContentRequest extends APIRequest<
     encoding: null
   }
 
-  public prepareOptions(message: IMessageData): request.OptionsWithUri {
+  private messageId: string
+
+  constructor(messageId: string) {
+    super()
+    this.messageId = messageId
+  }
+
+  protected prepareOptions(): request.OptionsWithUri {
     return {
       ...this.baseOptions,
-      uri: `https://api.line.me/v2/bot/message/${message.messageId}/content`
+      uri: `https://api.line.me/v2/bot/message/${this.messageId}/content`
     }
   }
 
-  public processResponse(res: any): any {
+  protected processResponse(res: any): any {
     return res.toString('base64')
   }
 }

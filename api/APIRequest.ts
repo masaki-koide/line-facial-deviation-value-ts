@@ -1,12 +1,10 @@
 import * as request from 'request-promise-native'
 
-export default abstract class APIRequest<O> {
-  public abstract baseOptions: request.RequestPromiseOptions
-  public abstract prepareOptions(addtionalOptions: O): request.OptionsWithUri
-  public abstract processResponse(res: any): any
+export default abstract class APIRequest {
+  protected abstract baseOptions: request.RequestPromiseOptions
 
-  public request(addtionalOptions: O): Promise<any> {
-    const resultOptions = this.prepareOptions(addtionalOptions)
+  public request(): Promise<any> {
+    const resultOptions = this.prepareOptions()
     return request(resultOptions)
       .then(res => {
         return this.processResponse(res)
@@ -16,4 +14,7 @@ export default abstract class APIRequest<O> {
         return Promise.reject(new Error(err))
       })
   }
+
+  protected abstract prepareOptions(): request.OptionsWithUri
+  protected abstract processResponse(res: any): any
 }

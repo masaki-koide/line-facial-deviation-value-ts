@@ -2,14 +2,8 @@ import * as request from 'request-promise-native'
 import { IMessage } from '../handler'
 import APIRequest from './APIRequest'
 
-// FIXME:requestの引数は考えたい
-export interface IReplyData {
-  replyToken: string
-  messages: IMessage[]
-}
-
-export default class LINEReplyRequest extends APIRequest<IReplyData> {
-  public baseOptions: request.RequestPromiseOptions = {
+export default class LINEReplyRequest extends APIRequest {
+  protected baseOptions: request.RequestPromiseOptions = {
     method: 'POST',
     auth: {
       bearer: process.env.lineBearer
@@ -17,18 +11,27 @@ export default class LINEReplyRequest extends APIRequest<IReplyData> {
     json: true
   }
 
-  public prepareOptions(replyData: IReplyData): request.OptionsWithUri {
+  private replyToken: string
+  private messages: IMessage[]
+
+  constructor(replyToken: string, messages: IMessage[]) {
+    super()
+    this.replyToken = replyToken
+    this.messages = messages
+  }
+
+  protected prepareOptions(): request.OptionsWithUri {
     return {
       ...this.baseOptions,
       uri: `https://api.line.me/v2/bot/message/reply`,
       body: {
-        replyToken: replyData.replyToken,
-        messages: replyData.messages
+        replyToken: this.replyToken,
+        messages: this.messages
       }
     }
   }
 
-  public processResponse(res: any): any {
+  protected processResponse(res: any): any {
     return res
   }
 }
