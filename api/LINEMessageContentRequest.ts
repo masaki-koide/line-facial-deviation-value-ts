@@ -1,8 +1,8 @@
-import * as request from 'request-promise-native'
+import { OptionsWithUri, RequestPromiseOptions } from 'request-promise-native'
 import APIRequest from './APIRequest'
 
 export default class LINEMessageContentRequest extends APIRequest {
-  protected baseOptions: request.RequestPromiseOptions = {
+  protected baseOptions: RequestPromiseOptions = {
     auth: {
       bearer: process.env.lineBearer
     },
@@ -17,7 +17,7 @@ export default class LINEMessageContentRequest extends APIRequest {
     this.messageId = messageId
   }
 
-  protected prepareOptions(): request.OptionsWithUri {
+  protected prepareOptions(): OptionsWithUri {
     return {
       ...this.baseOptions,
       uri: `https://api.line.me/v2/bot/message/${this.messageId}/content`

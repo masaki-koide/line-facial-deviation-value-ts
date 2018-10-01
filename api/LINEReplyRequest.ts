@@ -1,9 +1,9 @@
-import * as request from 'request-promise-native'
+import { OptionsWithUri, RequestPromiseOptions } from 'request-promise-native'
 import { IMessage } from '../handler'
 import APIRequest from './APIRequest'
 
 export default class LINEReplyRequest extends APIRequest {
-  protected baseOptions: request.RequestPromiseOptions = {
+  protected baseOptions: RequestPromiseOptions = {
     method: 'POST',
     auth: {
       bearer: process.env.lineBearer
@@ -20,7 +20,7 @@ export default class LINEReplyRequest extends APIRequest {
     this.messages = messages
   }
 
-  protected prepareOptions(): request.OptionsWithUri {
+  protected prepareOptions(): OptionsWithUri {
     return {
       ...this.baseOptions,
       uri: `https://api.line.me/v2/bot/message/reply`,

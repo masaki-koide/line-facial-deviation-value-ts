@@ -1,8 +1,8 @@
-import * as request from 'request-promise-native'
+import { OptionsWithUri, RequestPromiseOptions } from 'request-promise-native'
 import APIRequest from './APIRequest'
 
 export default class FaceDetectionRequest extends APIRequest {
-  protected baseOptions: request.RequestPromiseOptions = {
+  protected baseOptions: RequestPromiseOptions = {
     method: 'POST',
     form: {
       api_key: process.env.faceApiKey,
@@ -19,7 +19,7 @@ export default class FaceDetectionRequest extends APIRequest {
     this.imageBase64 = imageBase64
   }
 
-  protected prepareOptions(): request.OptionsWithUri {
+  protected prepareOptions(): OptionsWithUri {
     return {
       ...this.baseOptions,
       uri: 'https://api-us.faceplusplus.com/facepp/v3/detect',
