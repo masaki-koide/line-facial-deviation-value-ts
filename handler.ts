@@ -6,7 +6,8 @@ import {
   createErrorMessage,
   createMessagesFromFaces,
   IMessage,
-  isValidSignature
+  isValidSignature,
+  updateFirebaseUser
 } from './helper'
 
 export const webhook: Handler = (
@@ -47,22 +48,21 @@ function reply(events: any[], callback: Callback) {
         await new LINEReplyRequest(event.replyToken, messages).request()
       }
     } else if (event.type === 'follow' || event.type === 'unfollow') {
-      // TODO:Firebaseの型定義
-      // const userId = event.source.userId
-      // const isFollowEvent = event.type === 'follow'
-      const response = {
-        statusCode: 200,
-        body: JSON.stringify({})
+      const userId = event.source.userId
+      const isFollowEvent = event.type === 'follow'
+
+      try {
+        await updateFirebaseUser(userId, isFollowEvent)
+      } catch (err) {
+        console.log(err)
+      } finally {
+        // イベントループを終了させる
+        callback(null, {
+          statusCode: 200,
+          body: JSON.stringify({})
+        })
       }
-      // try {
-      //   await updateUser(userId, isFollowEvent)
-      // } catch (err) {
-      //   console.log(err)
-      // } finally {
-      //   // イベントループを終了させる
-      callback(null, response)
-      // }
-      // // その他のイベントはエラーメッセージで返す
+      // その他のイベントはエラーメッセージで返す
     } else {
       const messages = createErrorMessage('診断したい写真を送ってね！')
       await new LINEReplyRequest(event.replyToken, messages).request()

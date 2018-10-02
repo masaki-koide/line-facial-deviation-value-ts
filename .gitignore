@@ -13,3 +13,6 @@ conf
 
 # VSCode
 .vscode
+
+# Firebase
+serviceAccountKey.json
