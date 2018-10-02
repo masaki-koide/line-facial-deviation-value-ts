@@ -2,12 +2,12 @@ import { APIGatewayEvent, Callback, Context, Handler } from 'aws-lambda'
 import FaceDetectionRequest from './api/FaceDetectionRequest'
 import LINEMessageContentRequest from './api/LINEMessageContentRequest'
 import LINEReplyRequest from './api/LINEReplyRequest'
-import { isValidSignature } from './helper'
-
-export interface IMessage {
-  type: string
-  text: string
-}
+import {
+  createErrorMessage,
+  createMessagesFromFaces,
+  IMessage,
+  isValidSignature
+} from './helper'
 
 export const webhook: Handler = (
   event: APIGatewayEvent,
@@ -28,7 +28,7 @@ function reply(events: any[], callback: Callback) {
   events.forEach(async event => {
     // 画像が送信されてきた場合
     if (event.type === 'message' && event.message.type === 'image') {
-      let messages
+      let messages: IMessage[]
       try {
         // 送信された画像をbase64形式で取得
         const content = await new LINEMessageContentRequest(
@@ -36,19 +36,7 @@ function reply(events: any[], callback: Callback) {
         ).request()
         // 画像から顔を検出する
         const faces = await new FaceDetectionRequest(content).request()
-
-        // 画像から顔を検出できなかった場合
-        if (faces.length === 0) {
-          messages = createErrorMessage('写真から顔を検出できませんでした。')
-          // 返信できるメッセージが5つまでのため
-        } else if (faces.length > 5) {
-          messages = createErrorMessage(
-            '写真から6人以上の顔を検出しました。診断できるのは5人までです。'
-          )
-        } else {
-          // 顔の検出結果をメッセージオブジェクトに変換
-          messages = createFacesAnalysisResultMessages(faces)
-        }
+        messages = createMessagesFromFaces(faces)
       } catch (err) {
         console.log(err)
         messages = createErrorMessage(
@@ -78,43 +66,6 @@ function reply(events: any[], callback: Callback) {
     } else {
       const messages = createErrorMessage('診断したい写真を送ってね！')
       await new LINEReplyRequest(event.replyToken, messages).request()
-    }
-  })
-}
-
-function createErrorMessage(message: string): IMessage[] {
-  return [
-    {
-      type: 'text',
-      text: message
-    }
-  ]
-}
-
-function createFacesAnalysisResultMessages(faces: any[]): IMessage[] {
-  const sortedFaces = faces.sort((a: any, b: any) => {
-    if (a.face_rectangle.left === b.face_rectangle.left) {
-      return 0
-    } else if (a.face_rectangle.left < b.face_rectangle.left) {
-      return -1
-    }
-    return 1
-  })
-
-  return sortedFaces.map((face: any, index: number) => {
-    const attr = face.attributes
-    const age = attr.age.value
-    const gender = attr.gender.value === 'Male' ? '男性' : '女性'
-    const beauty =
-      gender === '男性' ? attr.beauty.male_score : attr.beauty.female_score
-    const order = faces.length > 1 ? `左から${index + 1}人目\n` : ''
-    const text = `${order}年齢: ${age}歳
-性別: ${gender}
-顔面偏差値: ${Math.round(beauty)}点(100点満点)`
-
-    return {
-      type: 'text',
-      text
     }
   })
 }
