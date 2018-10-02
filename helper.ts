@@ -1,14 +1,14 @@
 import * as crypto from 'crypto'
-import * as admin from 'firebase-admin'
-import serviceAccount from './serviceAccountKey.json'
+// import * as admin from 'firebase-admin'
+// import serviceAccount from './serviceAccountKey.json'
 
 // TODO:Firebase関連の処理が増えたら別ファイルに切り出す
-const database = admin.database()
-const usersRef = database.ref('users')
-admin.initializeApp({
-  credential: admin.credential.cert(serviceAccount),
-  databaseURL: process.env.firebaseDatabaseUrl
-})
+// const database = admin.database()
+// const usersRef = database.ref('users')
+// admin.initializeApp({
+//   credential: admin.credential.cert(serviceAccount),
+//   databaseURL: process.env.firebaseDatabaseUrl
+// })
 
 export interface IMessage {
   type: string
@@ -25,21 +25,21 @@ export const isValidSignature = (signature: string, body: any): boolean => {
   )
 }
 
-export const updateFirebaseUser = (
-  userId: string,
-  isFollowEvent: boolean
-): Promise<void | never> => {
-  const userRef = usersRef.child(userId)
+// export const updateFirebaseUser = (
+//   userId: string,
+//   isFollowEvent: boolean
+// ): Promise<void | never> => {
+//   const userRef = usersRef.child(userId)
 
-  return userRef
-    .update({
-      isBlocked: !isFollowEvent,
-      timestamp: admin.database.ServerValue.TIMESTAMP
-    })
-    .catch(err => {
-      return Promise.reject(new Error(err))
-    })
-}
+//   return userRef
+//     .update({
+//       isBlocked: !isFollowEvent,
+//       timestamp: admin.database.ServerValue.TIMESTAMP
+//     })
+//     .catch(err => {
+//       return Promise.reject(new Error(err))
+//     })
+// }
 
 export const createErrorMessage = (message: string): IMessage[] => {
   return [

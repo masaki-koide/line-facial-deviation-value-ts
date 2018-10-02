@@ -6,8 +6,8 @@ import {
   createErrorMessage,
   createMessagesFromFaces,
   IMessage,
-  isValidSignature,
-  updateFirebaseUser
+  isValidSignature
+  // updateFirebaseUser
 } from './helper'
 
 export const webhook: Handler = (
@@ -48,11 +48,11 @@ function reply(events: any[], callback: Callback) {
         await new LINEReplyRequest(event.replyToken, messages).request()
       }
     } else if (event.type === 'follow' || event.type === 'unfollow') {
-      const userId = event.source.userId
-      const isFollowEvent = event.type === 'follow'
+      // const userId = event.source.userId
+      // const isFollowEvent = event.type === 'follow'
 
       try {
-        await updateFirebaseUser(userId, isFollowEvent)
+        // await updateFirebaseUser(userId, isFollowEvent)
       } catch (err) {
         console.log(err)
       } finally {
