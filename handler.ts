@@ -26,16 +26,17 @@ export const webhook: Handler = (
 
 function reply(events: any[], callback: Callback) {
   events.forEach(async event => {
-    // 画像が送信されてきた場合
     if (event.type === 'message' && event.message.type === 'image') {
       let messages: IMessage[]
+
       try {
         // 送信された画像をbase64形式で取得
-        const content = await new LINEMessageContentRequest(
+        const imageBase64 = await new LINEMessageContentRequest(
           event.message.id
         ).request()
-        // 画像から顔を検出する
-        const faces = await new FaceDetectionRequest(content).request()
+
+        const faces = await new FaceDetectionRequest(imageBase64).request()
+
         messages = createMessagesFromFaces(faces)
       } catch (err) {
         console.log(err)
@@ -45,7 +46,6 @@ function reply(events: any[], callback: Callback) {
       } finally {
         await new LINEReplyRequest(event.replyToken, messages).request()
       }
-      // フォローもしくはフォロー解除された場合
     } else if (event.type === 'follow' || event.type === 'unfollow') {
       // TODO:Firebaseの型定義
       // const userId = event.source.userId

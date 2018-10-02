@@ -25,17 +25,15 @@ export const createErrorMessage = (message: string): IMessage[] => {
 }
 
 export const createMessagesFromFaces = (faces: any): IMessage[] => {
-  // 画像から顔を検出できなかった場合
   if (faces.length === 0) {
     return createErrorMessage('写真から顔を検出できませんでした。')
-    // 返信できるメッセージが5つまでのため
+    // 一度にリプライできるメッセージが5つまでのため
   } else if (faces.length > 5) {
     return createErrorMessage(
       '写真から6人以上の顔を検出しました。診断できるのは5人までです。'
     )
   }
 
-  // 顔の検出結果をメッセージオブジェクトに変換
   return createFacesAnalysisMessages(faces)
 }
 
